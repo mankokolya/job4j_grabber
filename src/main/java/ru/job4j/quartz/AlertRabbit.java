@@ -9,19 +9,26 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Properties;
 
+import static org.quartz.SimpleScheduleBuilder.simpleSchedule;
 import static org.quartz.TriggerBuilder.newTrigger;
 
 public class AlertRabbit {
-    private static final Logger LOG = LoggerFactory.getLogger(AlertRabbit.class.getName());
-
     public static void main(String[] args) {
+
         try {
+            List<Long> store = new ArrayList<>();
             Scheduler scheduler = StdSchedulerFactory.getDefaultScheduler();
             scheduler.start();
-            JobDetail job = newJob(Rabbit.class).build();
-            SimpleScheduleBuilder times = SimpleScheduleBuilder.simpleSchedule()
+            JobDataMap data = new JobDataMap();
+            data.put("store", store);
+            JobDetail job = newJob(Rabbit.class)
+                    .usingJobData(data)
+                    .build();
+            SimpleScheduleBuilder times = simpleSchedule()
                     .withIntervalInSeconds(getTime())
                     .repeatForever();
             Trigger trigger = newTrigger()
@@ -29,8 +36,25 @@ public class AlertRabbit {
                     .withSchedule(times)
                     .build();
             scheduler.scheduleJob(job, trigger);
-        } catch (SchedulerException se) {
-            LOG.error(se.toString());
+            Thread.sleep(5000);
+            scheduler.shutdown();
+            System.out.println("store = " + store);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    public static class Rabbit implements Job {
+
+        public Rabbit() {
+            System.out.println("hashCode = " + hashCode());
+        }
+
+        @Override
+        public void execute(JobExecutionContext context) throws JobExecutionException {
+            System.out.println("Rabbit runs here ...");
+            List<Long> store = (List<Long>) context.getJobDetail().getJobDataMap().get("store");
+            store.add(System.currentTimeMillis());
         }
     }
 
@@ -43,12 +67,5 @@ public class AlertRabbit {
             e.printStackTrace();
         }
         throw new IllegalArgumentException();
-    }
-
-    public static class Rabbit implements Job {
-        @Override
-        public void execute(JobExecutionContext context) {
-            System.out.println("Rabbit runs here...");
-        }
     }
 }
