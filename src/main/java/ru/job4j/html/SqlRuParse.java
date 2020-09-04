@@ -28,8 +28,10 @@ public class SqlRuParse {
 
     private static List<String> getAllUrls() {
         List<String> urls = new ArrayList<>();
+        int firstPage = 1;
+        int lastPage = 6;
         String url = "https://www.sql.ru/forum/job-offers/";
-        for (int i = 1; i < 6; i++) {
+        for (int i = firstPage; i < lastPage; i++) {
             urls.add(url + i);
         }
         return urls;
