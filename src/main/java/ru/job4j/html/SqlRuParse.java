@@ -14,13 +14,29 @@ import java.util.stream.IntStream;
 
 public class SqlRuParse {
     public static void main(String[] args) throws Exception {
-        Document doc = Jsoup.connect("https://www.sql.ru/forum/job-offers").get();
+        List<String> urls = getAllUrls();
+        for (String url : urls) {
+            Document doc = Jsoup.connect(url).get();
+            Elements row = doc.select(".postslisttopic");
+            Elements date = doc.select(".altCol");
+            Iterator<Element> rowIterator = row.iterator();
+            Iterator<Element> dateIterator = date.iterator();
+            printValues(rowIterator, dateIterator);
+        }
 
-        Elements row = doc.select(".postslisttopic");
+    }
 
-        Elements date = doc.select(".altCol");
-        Iterator<Element> rowIterator = row.iterator();
-        Iterator<Element> dateIterator = date.iterator();
+    private static List<String> getAllUrls() {
+        List<String> urls = new ArrayList<>();
+        String url = "https://www.sql.ru/forum/job-offers/";
+        for (int i = 1; i < 6; i++) {
+            urls.add(url + i);
+        }
+        return urls;
+    }
+
+    private static void printValues(Iterator<Element> rowIterator, Iterator<Element> dateIterator) throws
+            ParseException {
         while (rowIterator.hasNext()) {
             Element el = rowIterator.next();
             Element href = el.child((0));
