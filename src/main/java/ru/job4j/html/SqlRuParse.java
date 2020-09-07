@@ -54,7 +54,7 @@ public class SqlRuParse {
         }
     }
 
-    private static Date convertDateFromString(String date) throws ParseException {
+    public static Date convertDateFromString(String date) throws ParseException {
         Date rsl;
         final Map<String, String> correctMonthAbbreviations = twoListsToMap();
         final SimpleDateFormat formatter = new SimpleDateFormat("dd MMM yy, HH:mm", new Locale("ru"));
