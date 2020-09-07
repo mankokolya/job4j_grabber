@@ -1,4 +1,4 @@
-package ru.job4j.html;
+package ru.job4j.grabber;
 
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -17,19 +17,23 @@ public class Post {
     private String title;
     private final String url;
 
-    public Post(String url) throws Exception {
+    public Post(String url) {
         this.url = url;
         initializePost(url);
     }
 
-    private void initializePost(String url) throws Exception {
-        Document doc = Jsoup.connect(url).get();
-        Element table = doc.select(".msgTable").first();
-        this.title = table.getElementsByAttributeValue("class", "messageHeader").text();
-        Elements author = table.getElementsByAttributeValue("class", "msgBody");
-        this.author = author.first().text().split(" ")[0];
-        this.description = author.last().text();
-        this.creationTime = getTime(table);
+    private void initializePost(String url) {
+        try {
+            Document doc = Jsoup.connect(url).get();
+            Element table = doc.select(".msgTable").first();
+            this.title = table.getElementsByAttributeValue("class", "messageHeader").text();
+            Elements author = table.getElementsByAttributeValue("class", "msgBody");
+            this.author = author.first().text().split(" ")[0];
+            this.description = author.last().text();
+            this.creationTime = getTime(table);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     private Date getTime(Element table) throws ParseException {
@@ -39,7 +43,7 @@ public class Post {
         Matcher matcher = datePattern.matcher(dateAndTime);
         Matcher matcher1 = todayOrYesterday.matcher(dateAndTime);
         String date = matcher.find() ? matcher.group() : matcher1.find() ? matcher1.group() : "";
-        return SqlRuParse.convertDateFromString(date);
+        return CorrectDateAndTime.convertDateFromString(date);
     }
 
     @Override
@@ -53,8 +57,7 @@ public class Post {
                 + '}';
     }
 
-    public static void main(String[] args) throws Exception {
-        Post post = new Post("https://www.sql.ru/forum/1328901/junior-developer-wordpress");
-        System.out.println(post);
+    public String getTitle() {
+        return title;
     }
 }
