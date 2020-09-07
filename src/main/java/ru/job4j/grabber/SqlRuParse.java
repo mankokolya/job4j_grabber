@@ -54,6 +54,7 @@ public class SqlRuParse implements Parse {
         }
         return urls;
     }
+
     private static List<String> getAllUrls(String url) {
         return List.of(url);
     }
