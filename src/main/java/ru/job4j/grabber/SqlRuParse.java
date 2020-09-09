@@ -40,9 +40,8 @@ public class SqlRuParse implements Parse {
 
         return row.stream().map(element -> element.child(0))
                 .map(child -> child.attr("href"))
+                .skip(3)
                 .map(this::detail)
-                .filter(post -> !(post.getTitle().contains("Сообщения от модераторов")
-                        || post.getTitle().contains("Правила форума") || post.getTitle().contains("Шпаргалки")))
                 .collect(Collectors.toList());
     }
 
