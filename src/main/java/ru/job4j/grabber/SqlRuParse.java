@@ -54,7 +54,6 @@ public class SqlRuParse implements Parse {
             Element table = doc.select(".msgTable").first();
             post.setTitle(table.getElementsByAttributeValue("class", "messageHeader").text());
             Elements author = table.getElementsByAttributeValue("class", "msgBody");
-            post.setAuthor(author.first().text().split(" ")[0]);
             post.setDescription(author.last().text());
             post.setCreationTime(getTime(table));
         } catch (Exception e) {
