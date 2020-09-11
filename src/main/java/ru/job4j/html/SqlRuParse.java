@@ -1,7 +1,6 @@
 package ru.job4j.html;
 
 import java.text.ParseException;
-import java.text.SimpleDateFormat;
 
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -9,6 +8,7 @@ import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 import ru.job4j.grabber.CorrectDateAndTime;
 
+import java.time.LocalDate;
 import java.util.*;
 
 public class SqlRuParse {
@@ -35,8 +35,7 @@ public class SqlRuParse {
         return urls;
     }
 
-    private static void printValues(Iterator<Element> rowIterator, Iterator<Element> dateIterator) throws
-            ParseException {
+    private static void printValues(Iterator<Element> rowIterator, Iterator<Element> dateIterator) {
         while (rowIterator.hasNext()) {
             Element el = rowIterator.next();
             Element href = el.child((0));
@@ -45,7 +44,7 @@ public class SqlRuParse {
             if (dateIterator.hasNext()) {
                 dateIterator.next();
                 Element d = dateIterator.next();
-                Date dateTime = CorrectDateAndTime.convertDateFromString(d.text());
+                LocalDate dateTime = CorrectDateAndTime.convertDateFromString(d.text());
                 System.out.println(dateTime.toString());
                 System.out.println();
             }

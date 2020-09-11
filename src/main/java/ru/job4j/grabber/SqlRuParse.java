@@ -7,6 +7,7 @@ import org.jsoup.select.Elements;
 
 import java.io.IOException;
 import java.text.ParseException;
+import java.time.LocalDate;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -62,7 +63,7 @@ public class SqlRuParse implements Parse {
         return post;
     }
 
-    private static Date getTime(Element table) throws ParseException {
+    private static LocalDate getTime(Element table) {
         String dateAndTime = table.getElementsByClass("msgFooter").text();
         Pattern datePattern = Pattern.compile("\\d{2}\\s\\X[^\\s]*\\s\\d{2},\\s\\d{2}:\\d{2}");
         Pattern todayOrYesterday = Pattern.compile("\\X[^,]*,\\s\\d{2}:\\d{2}");

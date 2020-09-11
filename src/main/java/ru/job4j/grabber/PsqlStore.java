@@ -7,7 +7,7 @@ import java.util.List;
 import java.util.Properties;
 
 public class PsqlStore implements Store, AutoCloseable {
-    private Connection cnn;
+    private final Connection cnn;
 
     public PsqlStore(Properties cfg) throws Exception {
         try {
@@ -36,7 +36,7 @@ public class PsqlStore implements Store, AutoCloseable {
             statement.setString(1, post.getTitle());
             statement.setString(2, post.getDescription());
             statement.setString(3, post.getUrl());
-            statement.setDate(4, new Date(post.getCreationTime().getTime()));
+            statement.setDate(4, Date.valueOf(post.getCreationTime()));
             statement.executeUpdate();
         } catch (SQLException throwables) {
             throwables.printStackTrace();
@@ -50,11 +50,7 @@ public class PsqlStore implements Store, AutoCloseable {
         try (Statement statement = cnn.createStatement();
              ResultSet resultSet = statement.executeQuery(all)) {
             while (resultSet.next()) {
-                posts.add(new Post(resultSet.getString(1),
-                        resultSet.getString(2),
-                        resultSet.getString(3),
-                        new java.util.Date(resultSet.getDate(4).toString())
-                ));
+                posts.add(initializePost(resultSet));
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -68,18 +64,24 @@ public class PsqlStore implements Store, AutoCloseable {
         String findById = "select * from jobs.post where id = ?";
         try (PreparedStatement statement = cnn.prepareStatement(findById)) {
             statement.setInt(1, Integer.parseInt(id));
-            ResultSet resultSet = statement.executeQuery();
-            if (resultSet.next()) {
-                post = new Post(resultSet.getString(1),
-                        resultSet.getString(2),
-                        resultSet.getString(3),
-                        resultSet.getDate(4)
-                );
+            try (ResultSet resultSet = statement.executeQuery()) {
+                post = initializePost(resultSet);
             }
         } catch (Exception e) {
             e.printStackTrace();
         }
         return post;
+    }
+
+    private static Post initializePost(ResultSet resultSet) throws Exception {
+        if (resultSet.next()) {
+            return new Post(resultSet.getString(2),
+                    resultSet.getString(3),
+                    resultSet.getString(4),
+                    resultSet.getDate(5).toLocalDate()
+            );
+        }
+        throw new IllegalArgumentException();
     }
 
     public static void main(String[] args) throws Exception {
@@ -92,7 +94,8 @@ public class PsqlStore implements Store, AutoCloseable {
         PsqlStore store = new PsqlStore(properties);
         SqlRuParse parser = new SqlRuParse();
         List<Post> posts = parser.list("https://www.sql.ru/forum/job-offers/");
-//        posts.forEach(store::save);
+        posts.forEach(store::save);
         store.getAll().forEach(System.out::println);
+        System.out.println(store.findById("50"));
     }
 }

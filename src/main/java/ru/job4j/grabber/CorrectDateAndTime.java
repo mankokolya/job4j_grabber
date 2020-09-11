@@ -2,39 +2,32 @@ package ru.job4j.grabber;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 public class CorrectDateAndTime {
-    public static Date convertDateFromString(String date) throws ParseException {
-        Date rsl;
+    public static LocalDate convertDateFromString(String date) {
+        LocalDate rsl;
         final Map<String, String> correctMonthAbbreviations = twoListsToMap();
-        final SimpleDateFormat formatter = new SimpleDateFormat("dd MMM yy, HH:mm", new Locale("ru"));
+        final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("d MMM yy", new Locale("ru"));
+
         if (date.contains("сегодня") || date.contains("вчера")) {
-            rsl = getTodayOrYesterdayDay(date, formatter);
+            rsl = getTodayOrYesterdayDay(date);
         } else {
-            String[] split = date.split(" ");
-            split[1] = correctMonthAbbreviations.get(split[1]);
-            rsl = formatter.parse(String.join(" ", split));
+            String[] dateOnly = date.split(", ");
+            String[] correctDate = dateOnly[0].split(" ");
+            correctDate[1] = correctMonthAbbreviations.get(correctDate[1]);
+            rsl = LocalDate.parse(String.join(" ", correctDate), formatter);
         }
         return rsl;
     }
 
-    private static Date getTodayOrYesterdayDay(String date, SimpleDateFormat formatter) throws ParseException {
-        Date rsl = null;
-        final Calendar calendar = Calendar.getInstance();
-        final SimpleDateFormat dateFormat = new SimpleDateFormat("dd MMM yy", new Locale("ru"));
-        final String[] splitDate = date.split(", ");
-        if (date.contains("сегодня")) {
-            rsl = formatter.parse(String.join(
-                    ", ", dateFormat.format(calendar.getTime()), splitDate[1]));
-        } else if (date.contains("вчера")) {
-            calendar.add(Calendar.DATE, -1);
-            rsl = formatter.parse(String.join(
-                    ", ", dateFormat.format(calendar.getTime()), splitDate[1]));
-        }
-        return rsl;
+    private static LocalDate getTodayOrYesterdayDay(String date) {
+        LocalDate today = LocalDate.now();
+        return date.contains("сегодня") ? today : today.minusDays(1);
     }
 
     private static Map<String, String> twoListsToMap() {

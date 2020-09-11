@@ -1,15 +1,16 @@
 package ru.job4j.grabber;
 
+import java.time.LocalDate;
 import java.util.Date;
 
 public class Post {
-    private Date creationTime;
+    private LocalDate creationTime;
     private String description;
     private String title;
     private String url;
 
-    public Post(String title, String description, String url, Date creationTime) {
-        this.creationTime = creationTime;
+    public Post(String title, String description, String url, LocalDate creationDate) {
+        this.creationTime = creationDate;
         this.description = description;
         this.title = title;
         this.url = url;
@@ -18,7 +19,7 @@ public class Post {
     public Post() {
     }
 
-    public Date getCreationTime() {
+    public LocalDate getCreationTime() {
         return creationTime;
     }
 
@@ -39,7 +40,7 @@ public class Post {
         this.url = url;
     }
 
-    public void setCreationTime(Date creationTime) {
+    public void setCreationTime(LocalDate creationTime) {
         this.creationTime = creationTime;
     }
 
