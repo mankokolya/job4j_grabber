@@ -1,15 +1,14 @@
 package ru.job4j.grabber;
 
-import java.io.InputStream;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
 
 public class PsqlStore implements Store, AutoCloseable {
-    private final Connection cnn;
+    private Connection cnn;
 
-    public PsqlStore(Properties cfg) throws Exception {
+    public PsqlStore(Properties cfg) {
         try {
             Class.forName((cfg.getProperty("driver-class-name")));
             cnn = DriverManager.getConnection(
@@ -18,7 +17,7 @@ public class PsqlStore implements Store, AutoCloseable {
                     cfg.getProperty("password")
             );
         } catch (Exception e) {
-            throw new Exception(e);
+            e.printStackTrace();
         }
     }
 
@@ -31,7 +30,7 @@ public class PsqlStore implements Store, AutoCloseable {
 
     @Override
     public void save(Post post) {
-        String addPost = "INSERT INTO jobs.post (name, description, link, created) values (?, ?, ?, ?)";
+        String addPost = "INSERT INTO jobs.post (name, description, link, created) values (?, ?, ?, ?) ON CONFLICT (link) DO NOTHING";
         try (PreparedStatement statement = cnn.prepareStatement(addPost)) {
             statement.setString(1, post.getTitle());
             statement.setString(2, post.getDescription());
@@ -84,18 +83,4 @@ public class PsqlStore implements Store, AutoCloseable {
         throw new IllegalArgumentException();
     }
 
-    public static void main(String[] args) throws Exception {
-        Properties properties = new Properties();
-        try (InputStream in = PsqlStore.class.getClassLoader().getResourceAsStream("rabbit.properties")) {
-            properties.load(in);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        PsqlStore store = new PsqlStore(properties);
-        SqlRuParse parser = new SqlRuParse();
-        List<Post> posts = parser.list("https://www.sql.ru/forum/job-offers/");
-        posts.forEach(store::save);
-        store.getAll().forEach(System.out::println);
-        System.out.println(store.findById("50"));
-    }
 }

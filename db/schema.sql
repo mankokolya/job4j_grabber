@@ -1,4 +1,5 @@
 CREATE database job_grabber;
+
 \c job_grabber
 
 CREATE schema jobs

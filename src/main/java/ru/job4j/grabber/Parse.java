@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.util.List;
 
 public interface Parse {
-    List<Post> list(String link) throws IOException, Exception;
+    List<Post> list(String link);
     Post detail(String link);
+    List<String> getUrl();
 }

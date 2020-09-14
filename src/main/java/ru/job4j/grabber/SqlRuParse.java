@@ -6,7 +6,6 @@ import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
 import java.io.IOException;
-import java.text.ParseException;
 import java.time.LocalDate;
 import java.util.*;
 import java.util.regex.Matcher;
@@ -14,19 +13,29 @@ import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 public class SqlRuParse implements Parse {
-    public static void main(String[] args) {
-        String url = "https://www.sql.ru/forum/job-offers/";
-        SqlRuParse parser = new SqlRuParse();
-        List<String> urls = getAllUrls(url);
-        List<Post> allPosts = urls.stream()
-                .map(parser::list)
-                .flatMap(List::stream)
-                .collect(Collectors.toList());
+    private final List<String> url;
+    private final int startPage = 0;
+    private final int endPage = 0;
 
-       for (Post post : allPosts) {
-           System.out.println(post);
-           System.out.println();
-       }
+//    public static void main(String[] args) {
+//        String url = "https://www.sql.ru/forum/job-offers/";
+//        SqlRuParse parser = new SqlRuParse(url);
+//        List<Post> allPosts = parser.url.stream()
+//                .map(parser::list)
+//                .flatMap(List::stream)
+//                .collect(Collectors.toList());
+//
+//       for (Post post : allPosts) {
+//           System.out.println(post);
+//           System.out.println();
+//       }
+//    }
+    SqlRuParse(String url) {
+        this.url = getAllUrls(url);
+    }
+
+    SqlRuParse(String url, int startPage, int endPage) {
+        this.url = getAllUrls(url, startPage, endPage);
     }
 
     @Override
@@ -83,5 +92,9 @@ public class SqlRuParse implements Parse {
 
     private static List<String> getAllUrls(String url) {
         return List.of(url);
+    }
+
+    public List<String> getUrl() {
+        return url;
     }
 }
